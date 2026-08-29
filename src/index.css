@@ -1140,8 +1140,159 @@ body {
   flex-direction: column;
   gap: 12px;
   overflow-y: auto;
-  max-height: 60vh;
+  max-height: 65vh;
   background-color: var(--bg-card);
+}
+
+.export-selector-section {
+  background-color: var(--bg-card-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.export-selector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.selector-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selector-count-badge {
+  background-color: var(--bg-badge);
+  color: var(--primary-color);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.selector-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-link-action {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  transition: opacity 0.15s ease;
+}
+
+.btn-link-action:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.btn-link-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.selector-sep {
+  color: var(--text-muted);
+}
+
+.export-person-checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.export-person-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.export-person-checkbox-item:hover {
+  border-color: var(--border-strong);
+}
+
+.export-person-checkbox-item.checked {
+  border-color: var(--primary-color);
+  background-color: var(--selected-card-bg);
+}
+
+.export-checkbox-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.export-checkbox-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--bg-badge);
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.export-checkbox-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.export-checkbox-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.export-checkbox-org {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.export-checkbox-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background-color: var(--bg-badge);
+  padding: 1px 5px;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .export-summary-bar {
@@ -1170,17 +1321,39 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
-  max-height: 320px;
+  max-height: 260px;
   overflow: auto;
 }
 
 .export-code-block {
   color: #93c5fd;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   line-height: 1.45;
   margin: 0;
   white-space: pre;
+}
+
+.export-empty-notice {
+  text-align: center;
+  padding: 30px 16px;
+  background-color: var(--bg-card-hover);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-empty-notice .empty-icon {
+  font-size: 1.8rem;
+}
+
+.export-empty-notice p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .export-actions {
