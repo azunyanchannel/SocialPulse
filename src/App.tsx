@@ -9,6 +9,8 @@ import { EditPersonModal } from "./components/EditPersonModal";
 import { ImportMemoryModal } from "./components/ImportMemoryModal";
 import { ExportDataModal } from "./components/ExportDataModal";
 
+const THEME_STORAGE_KEY = "socialpulse_theme";
+
 export const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(() => loadState());
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(() => {
@@ -21,6 +23,26 @@ export const App: React.FC = () => {
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  // Theme state (persisted to localStorage)
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === "dark" || saved === "light") return saved;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  });
+
+  // Apply theme to document root & persist
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   // Sync state to localStorage whenever appState changes
   useEffect(() => {
@@ -178,7 +200,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container" data-theme={theme}>
       <PeopleList
         people={filteredPeople}
         selectedPersonId={selectedPersonId}
@@ -188,6 +210,8 @@ export const App: React.FC = () => {
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onOpenImportModal={() => setIsImportModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
 
       <PersonDetail

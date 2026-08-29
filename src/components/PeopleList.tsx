@@ -11,6 +11,8 @@ interface PeopleListProps {
   onOpenAddModal: () => void;
   onOpenImportModal: () => void;
   onOpenExportModal: () => void;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
 }
 
 export const PeopleList: React.FC<PeopleListProps> = ({
@@ -21,17 +23,30 @@ export const PeopleList: React.FC<PeopleListProps> = ({
   onSearchChange,
   onOpenAddModal,
   onOpenImportModal,
-  onOpenExportModal
+  onOpenExportModal,
+  theme,
+  onToggleTheme
 }) => {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <div className="brand">
-          <div className="brand-logo">SP</div>
-          <div>
-            <h1 className="brand-title">SocialPulse</h1>
-            <p className="brand-tagline">记住重要的人与相遇的瞬间</p>
+        <div className="brand-row">
+          <div className="brand">
+            <div className="brand-logo">SP</div>
+            <div>
+              <h1 className="brand-title">SocialPulse</h1>
+              <p className="brand-tagline">记住重要的人与相遇的瞬间</p>
+            </div>
           </div>
+          <button
+            type="button"
+            className="theme-toggle-btn"
+            onClick={onToggleTheme}
+            title={theme === "dark" ? "切换至浅色模式" : "切换至暗色模式"}
+            aria-label="切换主题颜色"
+          >
+            {theme === "dark" ? "☀️ 浅色" : "🌙 暗色"}
+          </button>
         </div>
 
         <div className="header-actions">
