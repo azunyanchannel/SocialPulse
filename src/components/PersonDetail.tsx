@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import type { Person, Interaction } from "../models/types";
 import { formatInteractionType, formatDate, getInitials } from "../utils/formatters";
 
@@ -6,13 +6,19 @@ interface PersonDetailProps {
   person: Person | null;
   interactions: Interaction[];
   onOpenImportModal: () => void;
+  onOpenEditModal: (person: Person) => void;
+  onDeletePerson: (personId: string) => void;
 }
 
 export const PersonDetail: React.FC<PersonDetailProps> = ({
   person,
   interactions,
-  onOpenImportModal
+  onOpenImportModal,
+  onOpenEditModal,
+  onDeletePerson
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   if (!person) {
     return (
       <main className="detail-panel empty-detail-state">
@@ -30,9 +36,14 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({
     return new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime();
   });
 
+  const handleConfirmDelete = () => {
+    onDeletePerson(person.id);
+    setShowDeleteConfirm(false);
+  };
+
   return (
     <main className="detail-panel">
-      {/* Profile Header */}
+      {/* Profile Header Card */}
       <section className="profile-header-card">
         <div className="profile-top-row">
           <div className="profile-avatar">{getInitials(person.name)}</div>
@@ -51,6 +62,26 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({
                 <span className="profile-location">📍 {person.location}</span>
               )}
             </div>
+          </div>
+
+          {/* Profile Actions: Edit & Delete */}
+          <div className="profile-action-buttons">
+            <button
+              type="button"
+              className="btn btn-sm btn-secondary"
+              onClick={() => onOpenEditModal(person)}
+              title="编辑此人档案信息"
+            >
+              ✏️ 编辑资料
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-danger-outline"
+              onClick={() => setShowDeleteConfirm(true)}
+              title="删除此人物及其互动历史"
+            >
+              🗑️ 删除
+            </button>
           </div>
         </div>
 
@@ -157,6 +188,59 @@ export const PersonDetail: React.FC<PersonDetailProps> = ({
           </div>
         )}
       </section>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="modal-backdrop" onClick={() => setShowDeleteConfirm(false)}>
+          <div
+            className="modal-container modal-sm"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-dialog-title"
+          >
+            <div className="modal-header">
+              <h2 id="delete-dialog-title" className="modal-title text-danger">
+                确认删除人物
+              </h2>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowDeleteConfirm(false)}
+                aria-label="关闭"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="delete-modal-body">
+              <p className="delete-warning-text">
+                您确定要删除联系人 <strong>「{person.name}」</strong> 吗？
+              </p>
+              <p className="delete-subtext">
+                此操作将同时彻底删除该人物名下的 <strong>{sortedInteractions.length}</strong> 条互动记录，且不可撤销。
+              </p>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleConfirmDelete}
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

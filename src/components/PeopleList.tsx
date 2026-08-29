@@ -10,6 +10,7 @@ interface PeopleListProps {
   onSearchChange: (query: string) => void;
   onOpenAddModal: () => void;
   onOpenImportModal: () => void;
+  onOpenExportModal: () => void;
 }
 
 export const PeopleList: React.FC<PeopleListProps> = ({
@@ -19,7 +20,8 @@ export const PeopleList: React.FC<PeopleListProps> = ({
   searchQuery,
   onSearchChange,
   onOpenAddModal,
-  onOpenImportModal
+  onOpenImportModal,
+  onOpenExportModal
 }) => {
   return (
     <aside className="sidebar">
@@ -47,7 +49,15 @@ export const PeopleList: React.FC<PeopleListProps> = ({
             onClick={onOpenImportModal}
             title="导入结构化记忆 JSON"
           >
-            <span className="btn-icon">📥</span> 导入记忆
+            <span className="btn-icon">📥</span> 导入
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={onOpenExportModal}
+            title="导出整个人脉与互动数据 (JSON)"
+          >
+            <span className="btn-icon">📤</span> 导出
           </button>
         </div>
       </div>

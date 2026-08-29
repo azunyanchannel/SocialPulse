@@ -48,6 +48,20 @@ export interface StructuredImportPayload {
   };
 }
 
+export interface PersonWithInteractions extends Person {
+  interactions: Omit<Interaction, "personId">[];
+}
+
+export interface ExportNetworkPayload {
+  version: "1.0";
+  exportedAt: string;
+  summary: {
+    totalPeople: number;
+    totalInteractions: number;
+  };
+  network: PersonWithInteractions[];
+}
+
 export interface AppState {
   people: Person[];
   interactions: Interaction[];

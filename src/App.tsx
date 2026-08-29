@@ -5,7 +5,9 @@ import { generateId } from "./utils/id";
 import { PeopleList } from "./components/PeopleList";
 import { PersonDetail } from "./components/PersonDetail";
 import { AddPersonModal } from "./components/AddPersonModal";
+import { EditPersonModal } from "./components/EditPersonModal";
 import { ImportMemoryModal } from "./components/ImportMemoryModal";
+import { ExportDataModal } from "./components/ExportDataModal";
 
 export const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(() => loadState());
@@ -15,7 +17,10 @@ export const App: React.FC = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Sync state to localStorage whenever appState changes
   useEffect(() => {
@@ -57,6 +62,38 @@ export const App: React.FC = () => {
       people: [newPerson, ...prev.people]
     }));
     setSelectedPersonId(newPerson.id);
+  };
+
+  // Handler for opening edit modal
+  const handleOpenEditModal = (person: Person) => {
+    setEditingPerson(person);
+    setIsEditModalOpen(true);
+  };
+
+  // Handler for saving edited person
+  const handleSaveEditedPerson = (updatedPerson: Person) => {
+    setAppState((prev) => ({
+      ...prev,
+      people: prev.people.map((p) => (p.id === updatedPerson.id ? updatedPerson : p))
+    }));
+  };
+
+  // Handler for deleting a person
+  const handleDeletePerson = (personId: string) => {
+    setAppState((prev) => {
+      const updatedPeople = prev.people.filter((p) => p.id !== personId);
+      const updatedInteractions = prev.interactions.filter((i) => i.personId !== personId);
+
+      // If deleted person was selected, switch to first remaining person
+      if (selectedPersonId === personId) {
+        setSelectedPersonId(updatedPeople.length > 0 ? updatedPeople[0].id : null);
+      }
+
+      return {
+        people: updatedPeople,
+        interactions: updatedInteractions
+      };
+    });
   };
 
   // Handler for structured import
@@ -150,12 +187,15 @@ export const App: React.FC = () => {
         onSearchChange={setSearchQuery}
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onOpenImportModal={() => setIsImportModalOpen(true)}
+        onOpenExportModal={() => setIsExportModalOpen(true)}
       />
 
       <PersonDetail
         person={selectedPerson}
         interactions={selectedPersonInteractions}
         onOpenImportModal={() => setIsImportModalOpen(true)}
+        onOpenEditModal={handleOpenEditModal}
+        onDeletePerson={handleDeletePerson}
       />
 
       <AddPersonModal
@@ -164,11 +204,27 @@ export const App: React.FC = () => {
         onAddPerson={handleAddPerson}
       />
 
+      <EditPersonModal
+        isOpen={isEditModalOpen}
+        person={editingPerson}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingPerson(null);
+        }}
+        onSavePerson={handleSaveEditedPerson}
+      />
+
       <ImportMemoryModal
         isOpen={isImportModalOpen}
         existingPeople={appState.people}
         onClose={() => setIsImportModalOpen(false)}
         onConfirmImport={handleConfirmImport}
+      />
+
+      <ExportDataModal
+        isOpen={isExportModalOpen}
+        appState={appState}
+        onClose={() => setIsExportModalOpen(false)}
       />
     </div>
   );
