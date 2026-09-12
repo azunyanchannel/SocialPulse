@@ -17,6 +17,11 @@ SocialPulse 是一个轻量级、专注于个人人脉与互动记忆整理的 W
    - **同名联系人识别**：当检测到同名联系人时，自动将互动记录关联至已有档案，避免重复创建人物。
 6. **本地数据持久化**：基于 `localStorage` 自动保存与还原数据。
 
+7. **✨ AI 整理（Cloudflare Workers AI）**：
+   - 在「导入结构化记忆」中直接输入一段自然语言，由 Worker 端 `POST /api/extract` 调用 Workers AI 生成 Schema 1.0 JSON。
+   - 结果会填入同一个预览/确认流程，仍需人工确认后才保存；手动粘贴 JSON 保留为离线备援。
+   - 模型由 `wrangler.jsonc` 的 `AI_MODEL` 变量决定（默认 `@cf/meta/llama-3.3-70b-instruct-fp8-fast`），可在 Cloudflare Dashboard 覆写。
+
 ## 🛠️ 技术栈
 
 - **前端框架**：React 19 + TypeScript
@@ -38,4 +43,18 @@ npm run lint
 
 # 构建生产版本
 npm run build
+
+# 本地联调 Worker + Workers AI（需先 npm run build；另开终端跑 npm run dev 时 /api 会代理到 :8787）
+npm run cf:dev
+
+# 手动部署到 Cloudflare（通常由 GitHub 推送自动触发，无需手动执行）
+npm run deploy
 ```
+
+## ☁️ Cloudflare 部署
+
+项目以 **Cloudflare Worker + Static Assets** 形式部署，配置见 `wrangler.jsonc`：
+
+- `worker/index.ts`：Worker 入口，处理 `/api/extract`，其余请求交给静态资源（SPA fallback）。
+- `assets.directory = ./dist`，`ai.binding = AI`（Workers AI）。
+- Dashboard 构建命令 `npm run build`，部署命令 `npx wrangler deploy`。

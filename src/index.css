@@ -1385,3 +1385,67 @@ body {
     padding: 18px;
   }
 }
+
+/* ===== AI Extract (Workers AI) section in Import Modal ===== */
+.ai-extract-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--bg-accent-subtle);
+  margin-bottom: 1rem;
+}
+
+.ai-extract-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.ai-extract-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ai-extract-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ai-extract-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ai-extract-error {
+  font-size: 0.85rem;
+  color: #dc2626;
+}
+
+[data-theme="dark"] .ai-extract-error {
+  color: #f87171;
+}
+
+.import-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.import-divider::before,
+.import-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}

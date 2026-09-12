@@ -57,6 +57,13 @@ const SAMPLE_NEW_PERSON_JSON = `{
   }
 }`;
 
+/** Browser-local calendar date as YYYY-MM-DD (used as the default interaction date). */
+function localToday(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export const ImportMemoryModal: React.FC<ImportMemoryModalProps> = ({
   isOpen,
   existingPeople,
@@ -66,6 +73,9 @@ export const ImportMemoryModal: React.FC<ImportMemoryModalProps> = ({
   const [rawJson, setRawJson] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const [parsedPayload, setParsedPayload] = useState<StructuredImportPayload | null>(null);
+  const [aiText, setAiText] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -91,6 +101,32 @@ export const ImportMemoryModal: React.FC<ImportMemoryModalProps> = ({
     handleJsonChange(sampleText);
   };
 
+  // Call the Worker endpoint (Workers AI) and feed the result into the same preview flow
+  const handleAiExtract = async () => {
+    const text = aiText.trim();
+    if (!text || aiLoading) return;
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, today: localToday() })
+      });
+      const data = (await res.json().catch(() => null)) as
+        | { success?: boolean; payload?: StructuredImportPayload; error?: string }
+        | null;
+      if (!res.ok || !data?.payload) {
+        throw new Error(data?.error || `请求失败 (HTTP ${res.status})`);
+      }
+      handleJsonChange(JSON.stringify(data.payload, null, 2));
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : "AI 整理失败，请改用手动粘贴 JSON。");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   // Find exact match by name
   const existingMatchedPerson = parsedPayload
     ? existingPeople.find(
@@ -108,6 +144,9 @@ export const ImportMemoryModal: React.FC<ImportMemoryModalProps> = ({
     setRawJson("");
     setValidationError(null);
     setParsedPayload(null);
+    setAiText("");
+    setAiError(null);
+    setAiLoading(false);
     onClose();
   };
 
@@ -126,7 +165,7 @@ export const ImportMemoryModal: React.FC<ImportMemoryModalProps> = ({
               导入结构化记忆
             </h2>
             <p className="modal-subtitle">
-              粘贴由 AI 输出或格式化生成的结构化 JSON 数据（Schema 1.0）进行预览与保存。
+              输入一段自然语言交给 AI 整理，或直接粘贴结构化 JSON 数据（Schema 1.0），预览确认后再保存。
             </p>
           </div>
           <button
@@ -140,6 +179,44 @@ export const ImportMemoryModal: React.FC<ImportMemoryModalProps> = ({
         </div>
 
         <div className="import-modal-body">
+          {/* AI Extract Section (Workers AI via /api/extract) */}
+          <div className="ai-extract-section">
+            <div className="ai-extract-header">
+              <label htmlFor="ai-textarea" className="form-label ai-extract-title">
+                ✨ AI 整理（自然语言 → JSON）
+              </label>
+              <span className="ai-extract-hint">由 Cloudflare Workers AI 生成，结果仍需你确认后才会保存</span>
+            </div>
+            <textarea
+              id="ai-textarea"
+              className="form-textarea"
+              rows={3}
+              placeholder="例如：今天跟 Alice 吃饭，她最近换工作到 Microsoft，下个月要去东京，喜欢喝手冲咖啡。"
+              value={aiText}
+              onChange={(e) => setAiText(e.target.value)}
+              disabled={aiLoading}
+            />
+            <div className="ai-extract-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleAiExtract}
+                disabled={aiLoading || !aiText.trim()}
+              >
+                {aiLoading ? "⏳ AI 整理中…" : "✨ 生成结构化 JSON"}
+              </button>
+              {aiError && (
+                <span className="ai-extract-error" role="alert">
+                  ⚠️ {aiError}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="import-divider">
+            <span>或手动粘贴 JSON</span>
+          </div>
+
           {/* Sample Buttons */}
           <div className="sample-buttons-bar">
             <span className="sample-label">快速示例：</span>
